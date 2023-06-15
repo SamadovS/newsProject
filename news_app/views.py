@@ -12,12 +12,12 @@ from .forms import ContactForm
 #     }
 #     return render(request, "news/news_list.html", context)
 #
-# def news_detail(request, id):
-#     news = get_object_or_404(News, id=id, status=News.Status.Published)
-#     context = {
-#         "news":news
-#     }
-#     return render(request, 'news/news_detail.html', context)
+def news_detail(request, news):
+    news = get_object_or_404(News, slug=news, status=News.Status.Published)
+    context = {
+        "news" : news
+    }
+    return render(request, 'news/news_detail.html', context)
 
 
 class NewsListView(ListView):
@@ -28,6 +28,7 @@ class NewsListView(ListView):
 
 
 class NewsDetailView(DetailView):
+    model = News
     # news = get_object_or_404(News, id=id, status=News.Status.Published)
     template_name = "news/news_detail.html"
     context_object_name = "news"
@@ -53,7 +54,7 @@ class HomePageView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
+        context['categories'] = self.model.objects.all()
         context['news_list'] = News.published.all().order_by('-publish_time')[:4]
         context['software_news'] = News.published.all().filter(category__name='Software').order_by('-publish_time')[:5] #asosiy
         context['aiml_news'] = News.published.all().filter(category__name='AI and Machine Learning').order_by('-publish_time')[:5]
@@ -89,8 +90,50 @@ class ContactPageView(TemplateView):
         return render(request, 'news/contact.html', context)
 
 
+class SoftwareNewsView(ListView):
+    model = News
+    template_name = 'news/software_news.html'
+    context_object_name = 'software_news'
 
+    def get_queryset(self):
+        news = self.model.published.all().filter(category__name='Software')
+        return news
 
+class WebNewsView(ListView):
+    model = News
+    template_name = 'news/web_news.html'
+    context_object_name = 'web_news'
+
+    def get_queryset(self):
+        news = self.model.published.all().filter(category__name='Internet and Web')
+        return news
+
+class AiNewsView(ListView):
+    model = News
+    template_name = 'news/ai_news.html'
+    context_object_name = 'ai_news'
+
+    def get_queryset(self):
+        news = self.model.published.all().filter(category__name='AI and Machine Learning')
+        return news
+
+class GameNewsView(ListView):
+    model = News
+    template_name = 'news/game_news.html'
+    context_object_name = 'game_news'
+
+    def get_queryset(self):
+        news = self.model.published.all().filter(category__name='Gaming')
+        return news
+
+class TechNewsView(ListView):
+    model = News
+    template_name = 'news/tech_news.html'
+    context_object_name = 'tech_news'
+
+    def get_queryset(self):
+        news = self.model.published.all().filter(category__name='Science and Technologies')
+        return news
 
 
 
